@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# Custom
+/build
+*.sublime-project
+*.sublime-workspace
+
+build.bat
+run.bat
