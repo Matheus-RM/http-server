@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 #include <unordered_map>
 #include <string>
 #include <sstream>
@@ -8,9 +7,10 @@
 #include <memory>
 
 #include "HttpController.hpp"
+#include "HttpFilterManager.hpp"
 
 /*	TODO:
- *	-> create an HttpFilterManager to handle filters
+ *	-> create an HttpFilterManager to handle filters // DONE
  *	-> add a priority system
  *	-> apply the sort on ArgumentContainer based on the priority
  *	-> create an HttpErrorManager to handle error callbacks
@@ -18,15 +18,14 @@
 
 using HttpMethod = http::verb;
 
-class HttpRouter
+class HttpRouter : public HttpFilterManager
 {
 	public:
 		HttpRouter();
-		~HttpRouter();
+		virtual ~HttpRouter();
 		
 	public:
 
-		using Filter = std::function<bool(const std::string&)>;
 		using Ptr = std::shared_ptr<HttpRouter>;
 
 	private:
@@ -44,7 +43,7 @@ class HttpRouter
 
 			std::unordered_map<std::string, HttpCallback> callbacks; // http methods
 
-			std::vector<Filter> filters;
+			std::vector<HttpFilter> filters;
 
 			int priority;
 		};
@@ -77,14 +76,11 @@ class HttpRouter
 		HttpEndpoint& gotoEndpoint(const std::string& path);
 
 		HttpEndpoint* createIfDontExist(const std::string& value, FixedContainer& data);
-		HttpEndpoint* createIfDontExist(const std::string& value, ArgumentContainer& data);
+		HttpEndpoint* createIfDontExist(const std::string& type, ArgumentContainer& data);
+		void addFiltersToEndpoint(HttpEndpoint& endpoint, const std::string& type);
 
 		// error callbacks
 		static HttpResponse notFoundError(const std::vector<std::string>& args);
-		
-		// filters
-		static bool checkInteger(const std::string& text);
-		static bool checkUnsigned(const std::string& text);
 
 	private:
 

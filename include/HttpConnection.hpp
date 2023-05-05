@@ -5,17 +5,17 @@
 #include <chrono>
 #include <memory>
 
+class HttpServer;
+
 class HttpConnection : public std::enable_shared_from_this<HttpConnection>
 {
 	public:
-		HttpConnection(tcp::socket socket, HttpRouter::Ptr router);
+		HttpConnection(tcp::socket socket, HttpServer* server);
 		~HttpConnection();
 
 	public:
 
 		using ptr = std::shared_ptr<HttpConnection>;
-
-		tcp::socket& getSocket();
 
 		void start();
 
@@ -36,5 +36,5 @@ class HttpConnection : public std::enable_shared_from_this<HttpConnection>
 		http::response<http::dynamic_body> mResponse;
 		asio::steady_timer mDeadline {mSocket.get_executor(), std::chrono::seconds(60)};
 
-		HttpRouter::Ptr mRouterPtr;
+		HttpServer* mServerPtr;
 };

@@ -21,7 +21,7 @@ http::response<http::dynamic_body> HttpController::execute() const
 
 	const auto&& data = mCallback(mArgs);
 
-	beast::ostream(result.body()) << data.body.str();
+	beast::ostream(result.body()) << data.body;
 
 	result.result(data.status);
 	result.set(http::field::content_type, data.type);

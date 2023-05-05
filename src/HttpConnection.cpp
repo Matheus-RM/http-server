@@ -1,9 +1,11 @@
 #include "HttpConnection.hpp"
 
+#include "HttpServer.hpp"
+
 #include <functional>
 
-HttpConnection::HttpConnection(tcp::socket socket, HttpRouter::Ptr router)
-							 : mSocket(std::move(socket)), mRouterPtr(router)
+HttpConnection::HttpConnection(tcp::socket socket, HttpServer* server)
+							 : mSocket(std::move(socket)), mServerPtr(server)
 {
 
 }
@@ -12,13 +14,6 @@ HttpConnection::~HttpConnection()
 {
 
 }
-
-
-tcp::socket& HttpConnection::getSocket()
-{
-	return mSocket;
-}
-
 
 void HttpConnection::start()
 {
@@ -47,12 +42,12 @@ void HttpConnection::handleRequest(const beast::error_code& error, size_t bytesT
 
 void HttpConnection::processRequest()
 {
-	const auto&& controller = mRouterPtr->getRequest(mRequest);
+	const auto&& controller = mServerPtr->getRequest(mRequest);
 	mResponse = controller.execute();
 
 	mResponse.version(mRequest.version());
 	mResponse.keep_alive(false);
-	mResponse.set(http::field::server, "TheuServer");
+	mResponse.set(http::field::server, mServerPtr->getName());
 
 	//mRequest.method_string()
 	writeResponse();

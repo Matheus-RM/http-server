@@ -2,26 +2,46 @@
 
 #include <functional>
 #include <iostream>
-#include <memory>
+
+#include <toml++/toml.h>
 
 HttpServer::HttpServer()
-	 : mContext(1), mAcceptor(mContext), mConnectionSocket(mContext), mRouterPtr(new HttpRouter())
+	 : HttpRouter(), mContext(1), mAcceptor(mContext), mConnectionSocket(mContext)
 {
-
-	const auto endpoint = tcp::endpoint(asio::ip::make_address(mIpAddress), mPort);
-	mAcceptor = tcp::acceptor(mContext, endpoint);
+	std::cout << "BUILD MODE = \"" << BUILD_MODE << "\"\n";
 }
 
 HttpServer::~HttpServer()
 {
-	std::cout << "Server: the server is now closing.\n";
+	std::cout << "SERVER: the server is now closing\n";
+}
+
+
+void HttpServer::readConfigureFile(const std::string& path)
+{
+	auto config = toml::parse_file(path);
+
+	mConfigure.name = config["default"]["name"].value_or("Theu-Server");
+	mConfigure.ipAddress = config[BUILD_MODE]["address"].value_or("127.0.0.1");
+	mConfigure.port = config[BUILD_MODE]["port"].value_or(8080);
+	mConfigure.templatePath = config["default"]["template_dir"].value_or("templates/");
+}
+
+void HttpServer::configure()
+{
+	const auto endpoint = tcp::endpoint(asio::ip::make_address(mConfigure.ipAddress), mConfigure.port);
+	mAcceptor = tcp::acceptor(mContext, endpoint);
+
+	mTemplateEnvironmentPtr = std::make_shared<inja::Environment>(mConfigure.templatePath);
 }
 
 
 void HttpServer::run()
 {
-	std::cout << "Server: server is now running.\n";
-	std::cout << "Server: address=\"" << mIpAddress << "\", port=" << mPort << ".\n";
+	configure();
+
+	std::cout << "SERVER: server \"" << mConfigure.name << "\" is now running\n";
+	std::cout << "\taddress=\"" << mConfigure.ipAddress << "\", port=" << mConfigure.port << "\n";
 
 	acceptConnection();
 
@@ -39,17 +59,16 @@ void HttpServer::handleConnection(const beast::error_code& error)
 {
 	if(!error)
     {
-        std::cout << "Server: found new connection.\n";
+        //std::cout << "SERVER: found new connection.\n";
 
-        auto connection = std::make_shared<HttpConnection>(std::move(mConnectionSocket), mRouterPtr);
+        auto connection = std::make_shared<HttpConnection>(std::move(mConnectionSocket), this);
         connection->start();
     }
 
 	acceptConnection();
 }
 
-
-void HttpServer::addEndpoint(const HttpMethod& method, const std::string& path, HttpCallback callback)
+std::string HttpServer::getName() const
 {
-	mRouterPtr->addEndpoint(method, path, callback);
+	return mConfigure.name;
 }

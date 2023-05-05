@@ -1,0 +1,11 @@
+[default]
+name = "Meu-Servidor"
+template_dir = "resources/templates/"
+
+[debug]
+address = "127.0.0.1"
+port = 8080
+
+[release]
+address = "127.0.0.1"
+port = 80

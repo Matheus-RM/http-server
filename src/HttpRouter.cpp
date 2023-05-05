@@ -1,9 +1,11 @@
 #include "HttpRouter.hpp"
 
 #include <algorithm>
+#include <iterator>
+#include <stdexcept>
 #include <iostream>
 
-HttpRouter::HttpRouter()
+HttpRouter::HttpRouter() : HttpFilterManager()
 {
 
 }
@@ -13,13 +15,6 @@ HttpRouter::~HttpRouter()
 
 }
 
-
-void HttpRouter::addEndpoint(const HttpMethod& method, const std::string& path, HttpCallback callback)
-{
-	auto& endpoint = gotoEndpoint(path);
-
-	endpoint.callbacks.emplace(http::to_string(method), callback);
-}
 
 HttpController HttpRouter::getRequest(const http::request<http::dynamic_body>& request)
 {
@@ -33,7 +28,7 @@ HttpController HttpRouter::getRequest(const HttpMethod& method, const std::strin
 
 HttpController HttpRouter::getRequest(const std::string& method, const std::string& path)
 {
-	std::cout << "Router: requesting \"" << path << "\", with method \"" << method << "\".\n";
+	std::cout << "\nROUTER: requesting \"" << path << "\" with method \"" << method << "\"\n";
 
 	EndpointSearchData data;
 	data.pathStream.str(path);
@@ -112,7 +107,9 @@ bool HttpRouter::lookInArgumentContainer(EndpointSearchData& data)
 
 bool HttpRouter::checkFilters(const std::string& data, const HttpEndpoint& endpoint)
 {
-	for(const auto filter : endpoint.filters)
+	std::cout << "\t-> Checking filters for argument \"" << data << "\"\n";
+
+	for(const auto& filter : endpoint.filters)
 	{
 		if(!filter(data))
 			return false;
@@ -121,6 +118,23 @@ bool HttpRouter::checkFilters(const std::string& data, const HttpEndpoint& endpo
 	return true;
 }
 
+void HttpRouter::addEndpoint(const HttpMethod& method, const std::string& path, HttpCallback callback)
+{
+	try
+	{
+		auto& endpoint = gotoEndpoint(path);
+
+		endpoint.callbacks.emplace(http::to_string(method), callback);
+	}
+	catch(std::runtime_error& error)
+	{
+		std::cout << "ROUTER [RUNTIME ERROR]: " << error.what() << "\n";
+	}
+	catch(std::exception& error)
+	{
+		std::cout << "ROUTER [UNDEFINED ERROR]: " << error.what() << "\n";
+	}
+}
 
 HttpRouter::HttpEndpoint& HttpRouter::gotoEndpoint(const std::string& path)
 {
@@ -158,52 +172,37 @@ HttpRouter::HttpEndpoint* HttpRouter::createIfDontExist(const std::string& value
 	return &it->second;
 }
 
-HttpRouter::HttpEndpoint* HttpRouter::createIfDontExist(const std::string& value, ArgumentContainer& data)
+HttpRouter::HttpEndpoint* HttpRouter::createIfDontExist(const std::string& type, ArgumentContainer& data)
 {
 	auto it = std::find_if(data.begin(), data.end(),
-							 [&value](auto& pair)
+							 [&type](auto& pair)
 							 {
-							 	return pair.first == value;
+							 	return pair.first == type;
 							 });
 
 	if(it == data.end())
 	{
-		data.emplace_back(value, HttpEndpoint());
-		it = data.end() - 1;
+		it = data.emplace(data.end(), type, HttpEndpoint());
 
-		if(value == "<int>")
-			it->second.filters.push_back(std::bind(HttpRouter::checkInteger, std::placeholders::_1));
-
-		else if(value == "<uint>")
-			it->second.filters.push_back(std::bind(HttpRouter::checkUnsigned, std::placeholders::_1));
+		addFiltersToEndpoint(it->second, type);
 	}
 
 	return &it->second;
 }
 
+void HttpRouter::addFiltersToEndpoint(HttpRouter::HttpEndpoint& endpoint, const std::string& type)
+{
+	const auto&& [filters, state] = this->getFilters(type);
+
+	if(!state)
+		throw std::runtime_error("Can't find a filter for type \"" + type + "\".");
+
+	endpoint.filters.insert(endpoint.filters.begin(), std::make_move_iterator(filters.begin()),
+													std::make_move_iterator(filters.end()));
+}
+
+
 HttpResponse HttpRouter::notFoundError(const std::vector<std::string>& args)
 {
-	return HttpResponse(std::ostringstream("404 - Not Found."), http::status::bad_request, "text/plain");
-}
-
-bool HttpRouter::checkInteger(const std::string& text)
-{
-	if(text.empty())
-		return false;
-
-	if(!isdigit(text[0]) && text[0] != '-' && text[0] != '+')
-		return false;
-	
-	return (text.substr(1).find_first_not_of("0123456789") == std::string::npos);
-}
-
-bool HttpRouter::checkUnsigned(const std::string& text)
-{
-	if(text.empty())
-		return false;
-
-	if(!isdigit(text[0]) && text[0] != '+')
-		return false;
-	
-	return (text.substr(1).find_first_not_of("0123456789") == std::string::npos);
+	return HttpResponse("404 - Not Found.", http::status::not_found, "text/plain");
 }

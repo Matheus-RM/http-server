@@ -1,21 +1,20 @@
 #include "HttpServer.hpp"
 
-#include <fstream>
+#include "fileGetters.hpp"
+
+#define BIND_HTTP(SERVER, METHOD, PATH, FUNCTION) \
+		SERVER.addEndpoint(HttpMethod::METHOD, PATH, std::bind(FUNCTION, std::placeholders::_1));
 
 int main(int argc, char** argv)
 {
 	HttpServer server;
+	
+	server.readConfigureFile("Server.toml");
 
-	server.addEndpoint(HttpMethod::get, "/", 
-			[](const auto& args) -> HttpResponse
-			{
-				std::ifstream file("../index.html");
-				std::ostringstream body;
-				body << file.rdbuf();
-				file.close();
-
-				return HttpResponse(body, http::status::ok, "text/html");
-			});
+	BIND_HTTP(server, get, "/", index);
+	BIND_HTTP(server, get, "/styles/<string>", getStylesheet);
+	BIND_HTTP(server, get, "/scripts/<string>", getScript);
+	BIND_HTTP(server, get, "/lang/<string>/<string>", getLanguage);
 
 	server.run();
 

@@ -7,18 +7,47 @@
 #include <string>
 #include <memory>
 
-class HttpServer
+#include <inja/inja.hpp>
+
+#ifdef _DEBUG
+	
+	#define BUILD_MODE "debug"
+
+#elif defined NDEBUG
+
+	#define BUILD_MODE "release"
+	
+#else
+
+	#define BUILD_MODE "debug"
+
+#endif
+
+class HttpServer : public HttpRouter
 {
 	public:
 		HttpServer();
 		~HttpServer();
 
+	private:
+		struct Configuration
+		{
+			std::string name = "Theu-Server";
+			std::string ipAddress = "127.0.0.1";
+			unsigned short port = 8080;
+			std::string templatePath = "templates/";
+		};
+
 	public:
-		void addEndpoint(const HttpMethod& method, const std::string& path, HttpCallback callback);
+		void readConfigureFile(const std::string& path);
+
+		std::string getName() const;
 
 		void run();
 
 	private:
+		void configure();
+
 		void acceptConnection();
 		void handleConnection(const beast::error_code& error);
 
@@ -27,11 +56,7 @@ class HttpServer
 		tcp::acceptor mAcceptor;
 		tcp::socket mConnectionSocket;
 
-		// this will be in a file
-		std::string mServerName = "TheuServer";
-		std::string mIpAddress = "127.0.0.1";
-		std::string mIpVersion = "IPv4";
-		unsigned short mPort = 8080;
+		Configuration mConfigure;
 
-		HttpRouter::Ptr mRouterPtr;
+		std::shared_ptr<inja::Environment> mTemplateEnvironmentPtr;
 };
