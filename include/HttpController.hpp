@@ -1,23 +1,17 @@
 #pragma once
 
-#include <vector>
-#include <string>
-#include <functional>
-
-#include "HttpResponse.hpp"
-
-using HttpCallback = std::function<HttpResponse(const std::vector<std::string>&)>;
+#include "HttpCallback.hpp"
 
 class HttpController
 {
 	public:
 		HttpController(HttpCallback callback);
 
-		HttpController(HttpCallback callback, const std::vector<std::string>& args);
+		HttpController(HttpCallback callback, const HttpArgs& args);
 
-		http::response<http::dynamic_body> execute() const;
+		http::response<http::dynamic_body> execute(HttpServer* server) const;
 
 	private:
 		HttpCallback mCallback;
-		std::vector<std::string> mArgs;
+		HttpArgs mArgs;
 };

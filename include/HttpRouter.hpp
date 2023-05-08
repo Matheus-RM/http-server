@@ -8,17 +8,18 @@
 
 #include "HttpController.hpp"
 #include "HttpFilterManager.hpp"
+#include "HttpErrorManager.hpp"
 
 /*	TODO:
  *	-> create an HttpFilterManager to handle filters // DONE
  *	-> add a priority system
  *	-> apply the sort on ArgumentContainer based on the priority
- *	-> create an HttpErrorManager to handle error callbacks
+ *	-> create an HttpErrorManager to handle error callbacks // DONE
 */
 
 using HttpMethod = http::verb;
 
-class HttpRouter : public HttpFilterManager
+class HttpRouter : public HttpFilterManager, public HttpErrorManager
 {
 	public:
 		HttpRouter();
@@ -78,9 +79,6 @@ class HttpRouter : public HttpFilterManager
 		HttpEndpoint* createIfDontExist(const std::string& value, FixedContainer& data);
 		HttpEndpoint* createIfDontExist(const std::string& type, ArgumentContainer& data);
 		void addFiltersToEndpoint(HttpEndpoint& endpoint, const std::string& type);
-
-		// error callbacks
-		static HttpResponse notFoundError(const std::vector<std::string>& args);
 
 	private:
 

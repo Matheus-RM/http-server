@@ -32,10 +32,11 @@ if(DEFINED CONFIGURE_ST AND CONFIGURE_ST)
 endif()
 
 # build
-set(VCPKG_INSTALLED_DIR C:/Development/vcpkg/installed)
-set(VCPKG_TRIPLET x64-windows)
-set(BOOST_ROOT ${VCPKG_INSTALLED_DIR}/${VCPKG_TRIPLET})
+#set(VCPKG_INSTALLED_DIR C:/Development/vcpkg/installed)
+#set(VCPKG_TRIPLET x64-windows)
+#set(BOOST_ROOT ${VCPKG_INSTALLED_DIR}/${VCPKG_TRIPLET})
 
+include(C:/Development/vcpkg/scripts/buildsystems/vcpkg.cmake)
 
 find_package(Boost 1.82.0 REQUIRED)
 find_package(tomlplusplus CONFIG REQUIRED)
@@ -48,8 +49,10 @@ add_executable(${PROJECT_NAME}
 			src/HttpServer.cpp
 			src/HttpConnection.cpp
 			src/HttpRouter.cpp
+			src/HttpResponse.cpp
 			src/HttpController.cpp
 			src/HttpFilterManager.cpp
+			src/HttpErrorManager.cpp
 			src/Filters.cpp
 
 			src/main.cpp
@@ -58,13 +61,17 @@ add_executable(${PROJECT_NAME}
 			#src/router_test.cpp
 			)
 
+message(${CMAKE_CURRENT_SOURCE_DIR})
+
 target_link_libraries(${PROJECT_NAME} PRIVATE Boost::boost)
 target_link_libraries(${PROJECT_NAME} PRIVATE tomlplusplus::tomlplusplus)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(${PROJECT_NAME} PRIVATE pantor::inja)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-target_include_directories(${PROJECT_NAME} PRIVATE "include")
+target_include_directories(${PROJECT_NAME} PUBLIC include)
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC _WIN32_WINNT=0x0601)
 
 set_target_properties( ${PROJECT_NAME}
 	PROPERTIES

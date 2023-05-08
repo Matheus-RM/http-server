@@ -2,16 +2,28 @@
 
 #include <boost/beast/http.hpp>
 #include <string>
-#include <sstream>
+#include <unordered_map>
+
+#include "EnumHelper.hpp"
 
 namespace http = boost::beast::http;
 
-struct HttpResponse
+class HttpResponse
 {
-	HttpResponse(const std::string& data, const http::status& status, const std::string& type)
-				: body(data), status(status), type(type) {}
+	public:
+		HttpResponse(const http::status& status);
+		HttpResponse(const std::string& data, const http::status& status, const std::string& type);
 
-	std::string body;
-	http::status status;
-	std::string type;
+		~HttpResponse();
+
+		friend class HttpController;
+
+	public:
+		void setField(http::field field, const std::string& value);
+		void setBody(const std::string& data, const std::string& type);
+
+	private:
+		std::string body;
+		http::status status;
+		std::unordered_map<http::field, std::string, EnumClassHash> fieldsValues;
 };

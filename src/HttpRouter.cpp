@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <iostream>
 
-HttpRouter::HttpRouter() : HttpFilterManager()
+HttpRouter::HttpRouter() : HttpFilterManager(), HttpErrorManager()
 {
 
 }
@@ -35,13 +35,13 @@ HttpController HttpRouter::getRequest(const std::string& method, const std::stri
 	data.endpointPtr = &mRootEndpoint;
 
 	if(!searchChildren(data))
-		return std::bind(HttpRouter::notFoundError, std::placeholders::_1);
+		return HttpController(this->getErrorCallback(http::status::not_found));
 
 	// check method validity
 	auto callbackIt = data.endpointPtr->callbacks.find(method);
 
 	if(callbackIt == data.endpointPtr->callbacks.end())
-		return std::bind(HttpRouter::notFoundError, std::placeholders::_1);
+		return HttpController(this->getErrorCallback(http::status::not_found));
 
 	return HttpController(callbackIt->second, std::move(data.args));
 }
@@ -107,7 +107,7 @@ bool HttpRouter::lookInArgumentContainer(EndpointSearchData& data)
 
 bool HttpRouter::checkFilters(const std::string& data, const HttpEndpoint& endpoint)
 {
-	std::cout << "\t-> Checking filters for argument \"" << data << "\"\n";
+	std::cout << "\t==> Filtering argument \"" << data << "\"\n";
 
 	for(const auto& filter : endpoint.filters)
 	{
@@ -167,6 +167,7 @@ HttpRouter::HttpEndpoint* HttpRouter::createIfDontExist(const std::string& value
 	if(it == data.end())
 	{
 		it = data.emplace(value, HttpEndpoint()).first;
+		it->second.priority = 0;
 	}
 
 	return &it->second;
@@ -192,17 +193,14 @@ HttpRouter::HttpEndpoint* HttpRouter::createIfDontExist(const std::string& type,
 
 void HttpRouter::addFiltersToEndpoint(HttpRouter::HttpEndpoint& endpoint, const std::string& type)
 {
-	const auto&& [filters, state] = this->getFilters(type);
+	const auto&& [filterData, isValid] = this->getFilterData(type);
+	const auto& filters = filterData.filters;
 
-	if(!state)
+	if(!isValid)
 		throw std::runtime_error("Can't find a filter for type \"" + type + "\".");
 
 	endpoint.filters.insert(endpoint.filters.begin(), std::make_move_iterator(filters.begin()),
 													std::make_move_iterator(filters.end()));
-}
 
-
-HttpResponse HttpRouter::notFoundError(const std::vector<std::string>& args)
-{
-	return HttpResponse("404 - Not Found.", http::status::not_found, "text/plain");
+	endpoint.priority = filterData.priority;
 }

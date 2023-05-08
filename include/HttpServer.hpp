@@ -3,27 +3,26 @@
 #include "HttpHelper.hpp"
 #include "HttpConnection.hpp"
 #include "HttpRouter.hpp"
+#include "DependencyManager.hpp"
 
 #include <string>
-#include <memory>
-
-#include <inja/inja.hpp>
 
 #ifdef _DEBUG
-	
 	#define BUILD_MODE "debug"
 
 #elif defined NDEBUG
-
 	#define BUILD_MODE "release"
 	
 #else
-
-	#define BUILD_MODE "debug"
+	#define BUILD_MODE "not-know"
 
 #endif
 
-class HttpServer : public HttpRouter
+#define BIND_HTTP(SERVER, METHOD, PATH, FUNCTION) \
+		SERVER.addEndpoint(HttpMethod::METHOD, PATH, \
+			std::bind(FUNCTION, std::placeholders::_1,  std::placeholders::_2));
+
+class HttpServer : public HttpRouter, public DependencyManager
 {
 	public:
 		HttpServer();
@@ -36,6 +35,7 @@ class HttpServer : public HttpRouter
 			std::string ipAddress = "127.0.0.1";
 			unsigned short port = 8080;
 			std::string templatePath = "templates/";
+			std::string errorTemplate = "error.html";
 		};
 
 	public:
@@ -58,5 +58,5 @@ class HttpServer : public HttpRouter
 
 		Configuration mConfigure;
 
-		std::shared_ptr<inja::Environment> mTemplateEnvironmentPtr;
+		bool mShouldQuit = false;
 };

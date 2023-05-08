@@ -1,6 +1,7 @@
 [default]
 name = "Meu-Servidor"
 template_dir = "resources/templates/"
+error_template = "error.html"
 
 [debug]
 address = "127.0.0.1"
