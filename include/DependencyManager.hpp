@@ -4,7 +4,7 @@
 #include <string>
 #include <any>
 
-#include <iostream>
+#include "Message.hpp"
 
 class DependencyManager
 {
@@ -27,11 +27,11 @@ class DependencyManager
 			const auto&& id = std::string(typeid(T).name());
 			auto it = mDependencies.find(id);
 
-			std::cout << "\t==> Getting dependency " << id << std::endl;
+			MESSAGE("\t==> Getting dependency ", id, "\n");
 
 			if(it == mDependencies.end())
 			{
-				std::cout << "\t==> Dependency not found" << std::endl;
+				MESSAGE("\t==> Dependency not found", "\n");
 				return std::make_pair(T(), false);
 			}
 

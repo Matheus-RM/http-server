@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <map>
 #include <memory>
 
 #include "HttpController.hpp"
@@ -33,7 +34,9 @@ class HttpRouter : public HttpFilterManager, public HttpErrorManager
 
 		struct HttpEndpoint;
 		using FixedContainer = std::unordered_map<std::string, HttpEndpoint>;
-		using ArgumentContainer = std::vector<std::pair<std::string, HttpEndpoint>>;
+
+		struct Argument;
+		using ArgumentContainer = std::multimap<int, Argument, std::greater<int>>; // priority and Argument
 
 		struct HttpEndpoint
 		{
@@ -45,8 +48,12 @@ class HttpRouter : public HttpFilterManager, public HttpErrorManager
 			std::unordered_map<std::string, HttpCallback> callbacks; // http methods
 
 			std::vector<HttpFilter> filters;
+		};
 
-			int priority;
+		struct Argument
+		{
+			std::string type;
+			HttpEndpoint endpoint;
 		};
 
 		struct EndpointSearchData
@@ -78,7 +85,7 @@ class HttpRouter : public HttpFilterManager, public HttpErrorManager
 
 		HttpEndpoint* createIfDontExist(const std::string& value, FixedContainer& data);
 		HttpEndpoint* createIfDontExist(const std::string& type, ArgumentContainer& data);
-		void addFiltersToEndpoint(HttpEndpoint& endpoint, const std::string& type);
+		std::pair<int, Argument> createArgumentEndpoint(const std::string& type) const;
 
 	private:
 

@@ -3,7 +3,8 @@
 #include <algorithm>
 #include <iterator>
 #include <stdexcept>
-#include <iostream>
+
+#include "Message.hpp"
 
 HttpRouter::HttpRouter() : HttpFilterManager(), HttpErrorManager()
 {
@@ -28,7 +29,7 @@ HttpController HttpRouter::getRequest(const HttpMethod& method, const std::strin
 
 HttpController HttpRouter::getRequest(const std::string& method, const std::string& path)
 {
-	std::cout << "\nROUTER: requesting \"" << path << "\" with method \"" << method << "\"\n";
+	MESSAGE("\nROUTER: requesting \"", path , "\" with method \"", method, "\"\n");
 
 	EndpointSearchData data;
 	data.pathStream.str(path);
@@ -86,12 +87,12 @@ bool HttpRouter::lookInArgumentContainer(EndpointSearchData& data)
 	if(argumentChildren.empty())
 		return false;
 
-	for(auto& [name, endpoint] : argumentChildren)
+	for(auto& [priority, argument] : argumentChildren)
 	{
-		if(!checkFilters(buffer, endpoint))
+		if(!checkFilters(buffer, argument.endpoint))
 			continue;
 
-		data.endpointPtr = &endpoint;
+		data.endpointPtr = &argument.endpoint;
 		
 		data.args.push_back(buffer); // this helps to keep the order of the arguments
 		
@@ -107,7 +108,7 @@ bool HttpRouter::lookInArgumentContainer(EndpointSearchData& data)
 
 bool HttpRouter::checkFilters(const std::string& data, const HttpEndpoint& endpoint)
 {
-	std::cout << "\t==> Filtering argument \"" << data << "\"\n";
+	MESSAGE("\t==> Filtering argument \"", data, "\"\n");
 
 	for(const auto& filter : endpoint.filters)
 	{
@@ -128,11 +129,11 @@ void HttpRouter::addEndpoint(const HttpMethod& method, const std::string& path, 
 	}
 	catch(std::runtime_error& error)
 	{
-		std::cout << "ROUTER [RUNTIME ERROR]: " << error.what() << "\n";
+		MESSAGE("ROUTER [RUNTIME ERROR]: ", error.what(), "\n");
 	}
 	catch(std::exception& error)
 	{
-		std::cout << "ROUTER [UNDEFINED ERROR]: " << error.what() << "\n";
+		MESSAGE("ROUTER [UNDEFINED ERROR]: ", error.what(), "\n");
 	}
 }
 
@@ -167,7 +168,6 @@ HttpRouter::HttpEndpoint* HttpRouter::createIfDontExist(const std::string& value
 	if(it == data.end())
 	{
 		it = data.emplace(value, HttpEndpoint()).first;
-		it->second.priority = 0;
 	}
 
 	return &it->second;
@@ -176,23 +176,24 @@ HttpRouter::HttpEndpoint* HttpRouter::createIfDontExist(const std::string& value
 HttpRouter::HttpEndpoint* HttpRouter::createIfDontExist(const std::string& type, ArgumentContainer& data)
 {
 	auto it = std::find_if(data.begin(), data.end(),
-							 [&type](auto& pair)
+							 [&type](const auto& pair)
 							 {
-							 	return pair.first == type;
+							 	const auto& argument = pair.second;
+							 	return argument.type == type;
 							 });
 
 	if(it == data.end())
 	{
-		it = data.emplace(data.end(), type, HttpEndpoint());
-
-		addFiltersToEndpoint(it->second, type);
+		it = data.insert(createArgumentEndpoint(type));
 	}
 
-	return &it->second;
+	return &it->second.endpoint;
 }
 
-void HttpRouter::addFiltersToEndpoint(HttpRouter::HttpEndpoint& endpoint, const std::string& type)
+std::pair<int, HttpRouter::Argument> HttpRouter::createArgumentEndpoint(const std::string& type) const
 {
+	HttpEndpoint endpoint;
+
 	const auto&& [filterData, isValid] = this->getFilterData(type);
 	const auto& filters = filterData.filters;
 
@@ -202,5 +203,5 @@ void HttpRouter::addFiltersToEndpoint(HttpRouter::HttpEndpoint& endpoint, const 
 	endpoint.filters.insert(endpoint.filters.begin(), std::make_move_iterator(filters.begin()),
 													std::make_move_iterator(filters.end()));
 
-	endpoint.priority = filterData.priority;
+	return std::make_pair(filterData.priority, Argument{type, std::move(endpoint)});
 }

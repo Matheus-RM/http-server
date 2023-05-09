@@ -1,10 +1,10 @@
 #include "HttpErrorManager.hpp"
 
-#include <iostream>
 #include <sstream>
 
 #include "HttpServer.hpp"
 #include "EnumHelper.hpp"
+#include "Message.hpp"
 
 #include <inja/inja.hpp>
 #include <nlohmann/json.hpp>
@@ -31,7 +31,7 @@ void HttpErrorManager::setErrorTemplateFile(const std::string& path)
 void HttpErrorManager::setErrorCallback(http::status status, HttpCallback callback)
 {
 	if(mDefinedCallbacks.find(status) != mDefinedCallbacks.end())
-		std::cout << "WARNING: resetting status [" << status << "] callback\n";
+		MESSAGE("WARNING: resetting status [", status, "] callback\n");
 
 	mDefinedCallbacks[status] = callback;
 }
@@ -55,7 +55,7 @@ HttpCallback HttpErrorManager::getErrorCallback(http::status status)
 		data["error_reason"] = http::obsolete_reason(status);
 		data["error_number"] = to_underlying(status);
 
-		std::cout << "\t==> Generating response for error " << status << "\n";
+		MESSAGE("\t==> Generating response for error ", status, "\n");
 
 		return HttpResponse(injaEnvironment.render_file(path, data), status, "text/html");
 	};

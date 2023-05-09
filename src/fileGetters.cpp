@@ -59,3 +59,13 @@ HttpResponse redirect(HttpServer* server, const HttpArgs& args)
 
 	return response;
 }
+
+HttpResponse argumentTestInt(HttpServer* server, const HttpArgs& args)
+{
+	return HttpResponse("The given argument \"" + args[0] + "\" is a integer.", http::status::ok, "text/plain");
+}
+
+HttpResponse argumentTestString(HttpServer* server, const HttpArgs& args)
+{
+	return HttpResponse("The given argument \"" + args[0] + "\" is a string.", http::status::ok, "text/plain");
+}

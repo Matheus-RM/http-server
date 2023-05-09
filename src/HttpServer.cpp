@@ -1,20 +1,21 @@
 #include "HttpServer.hpp"
 
 #include <functional>
-#include <iostream>
 
 #include <toml++/toml.h>
 #include <inja/inja.hpp>
 
+#include "Message.hpp"
+
 HttpServer::HttpServer()
 	 : HttpRouter(), mContext(1), mAcceptor(mContext), mConnectionSocket(mContext)
 {
-	std::cout << "BUILD MODE = \"" << BUILD_MODE << "\"\n";
+	MESSAGE("BUILD MODE = \"", BUILD_MODE, "\"\n");
 }
 
 HttpServer::~HttpServer()
 {
-	std::cout << "SERVER: the server is now closing\n";
+	MESSAGE("SERVER: the server is now closing\n");
 }
 
 
@@ -44,8 +45,8 @@ void HttpServer::run()
 {
 	configure();
 
-	std::cout << "SERVER: server \"" << mConfigure.name << "\" is now running\n";
-	std::cout << "\taddress=\"" << mConfigure.ipAddress << "\", port=" << mConfigure.port << "\n";
+	MESSAGE("SERVER: server \"", mConfigure.name, "\" is now running\n");
+	MESSAGE("\taddress=\"", mConfigure.ipAddress, "\", port=", mConfigure.port, "\n");
 
 	acceptConnection();
 
@@ -66,8 +67,6 @@ void HttpServer::handleConnection(const beast::error_code& error)
 {
 	if(!error)
     {
-        //std::cout << "SERVER: found new connection.\n";
-
         auto connection = std::make_shared<HttpConnection>(std::move(mConnectionSocket), this);
         connection->start();
     }

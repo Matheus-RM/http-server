@@ -15,6 +15,9 @@ int main(int argc, char** argv)
 	BIND_HTTP(server, get, "/hello/<string>", sayHello);
 	BIND_HTTP(server, get, "/redirect", redirect);
 
+	BIND_HTTP(server, get, "/test/<int>", argumentTestInt);
+	BIND_HTTP(server, get, "/test/<string>", argumentTestString);
+
 	server.run();
 
 	return 0;

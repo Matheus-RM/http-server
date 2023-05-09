@@ -3,7 +3,7 @@
 
 #include <boost/beast/core.hpp>
 
-#include <iostream>
+#include "Message.hpp"
 
 namespace beast = boost::beast;
 
@@ -22,12 +22,12 @@ http::response<http::dynamic_body> HttpController::execute(HttpServer* server) c
 {
 	http::response<http::dynamic_body> result;	
 
-	std::cout << "\t==> Retrieving data\n";
+	MESSAGE("\t==> Retrieving data\n");
 	const auto&& data = mCallback(server, mArgs);
 
 	for(const auto& [field, value] : data.fieldsValues)
 	{
-		std::cout << "\t==> Setting field " << http::to_string(field) << " to " << value << "\n";
+		MESSAGE("\t==> Setting field ", http::to_string(field), " to ", value, "\n");
 		result.set(field, value);
 	}
 
@@ -37,7 +37,7 @@ http::response<http::dynamic_body> HttpController::execute(HttpServer* server) c
 	//result.set(http::field::content_type, data.type);
 	//result.content_length(result.body().size());
 
-	std::cout << "\t==> Returning response\n";
+	MESSAGE("\t==> Returning response\n");
 
 	return result;
 }

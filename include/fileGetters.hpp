@@ -13,3 +13,6 @@ HttpResponse getScript(HttpServer* server, const HttpArgs& args);
 HttpResponse getLanguage(HttpServer* server, const HttpArgs& args);
 HttpResponse sayHello(HttpServer* server, const HttpArgs& args);
 HttpResponse redirect(HttpServer* server, const HttpArgs& args);
+
+HttpResponse argumentTestInt(HttpServer* server, const HttpArgs& args);
+HttpResponse argumentTestString(HttpServer* server, const HttpArgs& args);
