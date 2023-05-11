@@ -42,23 +42,29 @@ find_package(Boost 1.82.0 REQUIRED)
 find_package(tomlplusplus CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(inja CONFIG REQUIRED)
+find_package(libpqxx CONFIG REQUIRED)
 
 set(PROJECT_NAME prog)
 
+# add_library(name SHARED sources)
+
 add_executable(${PROJECT_NAME}
-			src/HttpServer.cpp
-			src/HttpConnection.cpp
-			src/HttpRouter.cpp
-			src/HttpResponse.cpp
-			src/HttpController.cpp
-			src/HttpFilterManager.cpp
-			src/HttpErrorManager.cpp
-			src/Filters.cpp
+			src/Base/HttpServer.cpp
+			src/Base/HttpConnection.cpp
+			src/Base/HttpController.cpp
+
+			src/Routes/HttpRouter.cpp
+			src/Routes/HttpRequest.cpp
+			src/Routes/HttpResponse.cpp
+			src/Routes/HttpFilterManager.cpp
+			src/Routes/HttpErrorManager.cpp
+			src/Routes/Filters.cpp
 
 			src/main.cpp
 			src/fileGetters.cpp
-			#src/example.cpp
-			#src/router_test.cpp
+
+			#src/TestLegacy/example.cpp
+			#src/TestLegacy/router_test.cpp
 			)
 
 message(${CMAKE_CURRENT_SOURCE_DIR})
@@ -67,6 +73,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE Boost::boost)
 target_link_libraries(${PROJECT_NAME} PRIVATE tomlplusplus::tomlplusplus)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(${PROJECT_NAME} PRIVATE pantor::inja)
+target_link_libraries(${PROJECT_NAME} PRIVATE libpqxx::pqxx)
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 target_include_directories(${PROJECT_NAME} PUBLIC include)

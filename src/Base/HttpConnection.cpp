@@ -1,6 +1,6 @@
-#include "HttpConnection.hpp"
+#include "Base/HttpConnection.hpp"
 
-#include "HttpServer.hpp"
+#include "Base/HttpServer.hpp"
 
 #include <functional>
 

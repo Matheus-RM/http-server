@@ -1,11 +1,11 @@
-#include "HttpServer.hpp"
+#include "Base/HttpServer.hpp"
 
 #include <functional>
 
 #include <toml++/toml.h>
 #include <inja/inja.hpp>
 
-#include "Message.hpp"
+#include "Util/Message.hpp"
 
 HttpServer::HttpServer()
 	 : HttpRouter(), mContext(1), mAcceptor(mContext), mConnectionSocket(mContext)

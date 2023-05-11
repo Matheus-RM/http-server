@@ -1,7 +1,7 @@
 #pragma once
 
-#include "HttpHelper.hpp"
-#include "HttpRouter.hpp"
+#include "Util/HttpHelper.hpp"
+#include "Routes/HttpRouter.hpp"
 #include <chrono>
 #include <memory>
 

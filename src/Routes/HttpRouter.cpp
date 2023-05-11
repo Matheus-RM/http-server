@@ -1,10 +1,11 @@
-#include "HttpRouter.hpp"
+#include "Routes/HttpRouter.hpp"
+
+#include "Util/Message.hpp"
 
 #include <algorithm>
 #include <iterator>
 #include <stdexcept>
 
-#include "Message.hpp"
 
 HttpRouter::HttpRouter() : HttpFilterManager(), HttpErrorManager()
 {

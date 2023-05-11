@@ -1,6 +1,6 @@
-#include "HttpFilterManager.hpp"
+#include "Routes/HttpFilterManager.hpp"
 
-#include "Filters.hpp"
+#include "Routes/Filters.hpp"
 
 HttpFilterManager::HttpFilterManager()
 {

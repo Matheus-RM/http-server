@@ -1,4 +1,4 @@
-#include "HttpServer.hpp"
+#include "Base/HttpServer.hpp"
 
 #include "fileGetters.hpp"
 
@@ -15,8 +15,8 @@ int main(int argc, char** argv)
 	BIND_HTTP(server, get, "/hello/<string>", sayHello);
 	BIND_HTTP(server, get, "/redirect", redirect);
 
-	BIND_HTTP(server, get, "/test/<int>", argumentTestInt);
 	BIND_HTTP(server, get, "/test/<string>", argumentTestString);
+	BIND_HTTP(server, get, "/test/<int>", argumentTestInt);
 
 	server.run();
 

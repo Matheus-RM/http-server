@@ -1,10 +1,10 @@
-#include "HttpErrorManager.hpp"
+#include "Routes/HttpErrorManager.hpp"
 
 #include <sstream>
 
-#include "HttpServer.hpp"
-#include "EnumHelper.hpp"
-#include "Message.hpp"
+#include "Base/HttpServer.hpp"
+#include "Util/EnumHelper.hpp"
+#include "Util/Message.hpp"
 
 #include <inja/inja.hpp>
 #include <nlohmann/json.hpp>
@@ -44,7 +44,7 @@ HttpCallback HttpErrorManager::getErrorCallback(http::status status)
 	if(it != mDefinedCallbacks.end())
 		return it->second;
 
-	auto callback = [status, &path = mTemplatePath](HttpServer* server, const HttpArgs& args) -> HttpResponse
+	auto callback = [status, &path = mTemplatePath](HttpServer* server, const HttpRequest& request) -> HttpResponse
 	{
 		auto [injaEnvironment, isValid] = server->getDependency<inja::Environment>();
 
@@ -63,11 +63,11 @@ HttpCallback HttpErrorManager::getErrorCallback(http::status status)
 	return callback;
 }
 
-HttpResponse HttpErrorManager::getErrorResponse(http::status status, HttpServer* server, const HttpArgs& args)
+HttpResponse HttpErrorManager::getErrorResponse(http::status status, HttpServer* server, const HttpRequest& request)
 {
 	auto callback = getErrorCallback(status);
 
-	return callback(server, args);
+	return callback(server, request);
 }
 
 HttpResponse HttpErrorManager::getDefaultErrorResponse(http::status status, const std::string& path)

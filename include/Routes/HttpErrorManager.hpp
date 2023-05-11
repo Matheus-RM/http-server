@@ -3,7 +3,7 @@
 #include <boost/beast/http.hpp>
 #include <unordered_map>
 
-#include "HttpCallback.hpp"
+#include "Routes/HttpCallback.hpp"
 
 namespace http = boost::beast::http;
 
@@ -21,7 +21,7 @@ class HttpErrorManager
 		void setErrorCallback(http::status status, HttpCallback callback);
 
 		HttpCallback getErrorCallback(http::status status);
-		HttpResponse getErrorResponse(http::status status, HttpServer* server, const HttpArgs& args);
+		HttpResponse getErrorResponse(http::status status, HttpServer* server, const HttpRequest& request);
 
 		static HttpResponse getDefaultErrorResponse(http::status status, const std::string& path);
 

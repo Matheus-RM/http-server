@@ -1,9 +1,9 @@
 #pragma once
 
-#include "HttpHelper.hpp"
-#include "HttpConnection.hpp"
-#include "HttpRouter.hpp"
-#include "DependencyManager.hpp"
+#include "Base/HttpConnection.hpp"
+#include "Base/DependencyManager.hpp"
+#include "Util/HttpHelper.hpp"
+#include "Routes/HttpRouter.hpp"
 
 #include <string>
 

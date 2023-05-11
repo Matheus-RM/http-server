@@ -7,16 +7,9 @@
 #include <map>
 #include <memory>
 
-#include "HttpController.hpp"
-#include "HttpFilterManager.hpp"
-#include "HttpErrorManager.hpp"
-
-/*	TODO:
- *	-> create an HttpFilterManager to handle filters // DONE
- *	-> add a priority system
- *	-> apply the sort on ArgumentContainer based on the priority
- *	-> create an HttpErrorManager to handle error callbacks // DONE
-*/
+#include "Base/HttpController.hpp"
+#include "Routes/HttpFilterManager.hpp"
+#include "Routes/HttpErrorManager.hpp"
 
 using HttpMethod = http::verb;
 

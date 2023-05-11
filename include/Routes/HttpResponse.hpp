@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "EnumHelper.hpp"
+#include "Util/EnumHelper.hpp"
 
 namespace http = boost::beast::http;
 
