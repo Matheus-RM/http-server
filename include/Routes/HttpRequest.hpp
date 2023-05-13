@@ -23,8 +23,8 @@ class HttpRequest
 		~HttpRequest();
 
 	public:
-		const std::string& getArgument(unsigned index) const;
-		const std::string& getFormAttribute(std::string_view key) const;
+		std::string getArgument(unsigned index) const;
+		std::string getFormAttribute(std::string_view key) const;
 		const FormData& getFormData() const;
 
 	private:

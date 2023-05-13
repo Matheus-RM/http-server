@@ -22,6 +22,8 @@ function loadLanguage() {
 
 		console.log("data:", JSON.stringify(data));
 
+		$("html").attr("lang", language);
+
 		Object.entries(data).forEach((entry) => {
 
 			const [id, text] = entry;

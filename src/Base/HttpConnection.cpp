@@ -42,8 +42,8 @@ void HttpConnection::handleRequest(const beast::error_code& error, size_t bytesT
 
 void HttpConnection::processRequest()
 {
-	const auto&& controller = mServerPtr->getRequest(mRequest);
-	mResponse = controller.execute(mServerPtr);
+	auto&& controller = mServerPtr->getRequestController(mRequest);
+	mResponse = controller.execute(mServerPtr, mRequest);
 
 	mResponse.version(mRequest.version());
 	mResponse.keep_alive(false);

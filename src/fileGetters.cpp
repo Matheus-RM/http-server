@@ -1,5 +1,7 @@
 #include "fileGetters.hpp"
 
+#include "Util/Message.hpp"
+
 #include <fstream>
 
 #include <inja/inja.hpp>

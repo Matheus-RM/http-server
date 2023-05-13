@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 
 	std::cout << "\n-> Getting controller...\n";
 
-	auto controller = router.getRequest(argv[3], argv[4]);
+	auto controller = router.getRequestController(argv[3], argv[4]);
 	auto buffer = controller.execute();
 
 	std::cout << "CONTROLLER RETURNED:\n" << buffer.str() << "END\n";

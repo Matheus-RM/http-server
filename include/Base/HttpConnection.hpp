@@ -32,8 +32,8 @@ class HttpConnection : public std::enable_shared_from_this<HttpConnection>
 	private:
 		tcp::socket mSocket;
 		beast::flat_buffer mBuffer {8192};
-		http::request<http::dynamic_body> mRequest;
-		http::response<http::dynamic_body> mResponse;
+		RequestWrapper mRequest;
+		ResponseWrapper mResponse;
 		asio::steady_timer mDeadline {mSocket.get_executor(), std::chrono::seconds(60)};
 
 		HttpServer* mServerPtr;

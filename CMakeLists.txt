@@ -60,6 +60,8 @@ add_executable(${PROJECT_NAME}
 			src/Routes/HttpErrorManager.cpp
 			src/Routes/Filters.cpp
 
+			src/Util/HttpUtil.cpp
+
 			src/main.cpp
 			src/fileGetters.cpp
 

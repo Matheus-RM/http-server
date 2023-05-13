@@ -56,19 +56,21 @@ class HttpRouter : public HttpFilterManager, public HttpErrorManager
 
 			HttpEndpoint* endpointPtr;
 			
-			std::vector<std::string> args;
+			HttpRequest::Args args;
+			HttpRequest::FormData form;
 		};
 
 	public:
 
 		void addEndpoint(const HttpMethod& method, const std::string& path, HttpCallback callback);
-		HttpController getRequest(const http::request<http::dynamic_body>& request);
-		HttpController getRequest(const HttpMethod& method, const std::string& path);
+		HttpController getRequestController(const RequestWrapper& request);
+		HttpController getRequestController(const HttpMethod& method, const std::string& path);
 
 	private:
-		HttpController getRequest(const std::string& method, const std::string& path);
+		HttpController getRequestController(const std::string& method, const std::string& path);
 
 		bool searchChildren(EndpointSearchData& data);
+		void getFormData(EndpointSearchData& data);
 		bool lookInFixedContainer(EndpointSearchData& data);
 		bool lookInArgumentContainer(EndpointSearchData& data);
 

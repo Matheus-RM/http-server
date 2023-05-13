@@ -3,6 +3,7 @@
 #ifdef _DEBUG
 
 	#include <iostream>
+	#include <iomanip>
 
 	template <class FirstT, class... Args>
 	void print(const FirstT& first, const Args&... rest)

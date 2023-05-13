@@ -22,5 +22,39 @@
 	<h1 id="main-title">Bem vindo a minha página html!</h1>
 	<p id="paragraph-content">-> esta página está em desenvolvimento 🧠🦾😎</p>
 
+	<form action="/" method="POST">
+		<fieldset>
+			<legend>Dados de Contato</legend>
+
+			<section class="form-entry">
+				<label for="name">Nome</label>
+				<input type="text" name="name" id="nameEntry" maxlength="100" size="50" required>
+			</section>
+
+			<section class="form-entry">
+				<label for="birthday">Data de nascimento</label>
+				<input type="date" name="birthday" id="birthdayEntry" required>
+			</section>
+
+			<section class="form-entry">
+				<label>Sexo</label>
+				<br>
+				<input type="radio" name="gender" value="M" id="maleEntry" required>
+				<label for="maleEntry">Masculino</label>
+
+				<input type="radio" name="gender" value="F" id="femaleEntry" required>
+				<label for="femaleEntry">Feminino</label>
+			</section>
+
+			<section class="form-entry">
+				<label for="email">Email</label>
+				<input type="email" name="email" id="emailEntry" maxlength="100" size="50" required>
+			</section>
+
+			<input type="submit" name="confirm" value="Enviar">		
+
+		</fieldset>
+	</form>
+
 </body>
 </html>

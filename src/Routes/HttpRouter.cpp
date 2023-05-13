@@ -1,6 +1,7 @@
 #include "Routes/HttpRouter.hpp"
 
 #include "Util/Message.hpp"
+#include "Util/HttpUtil.hpp"
 
 #include <algorithm>
 #include <iterator>
@@ -18,17 +19,17 @@ HttpRouter::~HttpRouter()
 }
 
 
-HttpController HttpRouter::getRequest(const http::request<http::dynamic_body>& request)
+HttpController HttpRouter::getRequestController(const RequestWrapper& request)
 {
-	return getRequest(http::to_string(request.method()), request.target());
+	return getRequestController(http::to_string(request.method()), request.target());
 }
 
-HttpController HttpRouter::getRequest(const HttpMethod& method, const std::string& path)
+HttpController HttpRouter::getRequestController(const HttpMethod& method, const std::string& path)
 {
-	return getRequest(http::to_string(method), path);
+	return getRequestController(http::to_string(method), path);
 }
 
-HttpController HttpRouter::getRequest(const std::string& method, const std::string& path)
+HttpController HttpRouter::getRequestController(const std::string& method, const std::string& path)
 {
 	MESSAGE("\nROUTER: requesting \"", path , "\" with method \"", method, "\"\n");
 
@@ -45,7 +46,7 @@ HttpController HttpRouter::getRequest(const std::string& method, const std::stri
 	if(callbackIt == data.endpointPtr->callbacks.end())
 		return HttpController(this->getErrorCallback(http::status::not_found));
 
-	return HttpController(callbackIt->second, std::move(data.args));
+	return HttpController(callbackIt->second, std::move(data.args), std::move(data.form));
 }
 
 bool HttpRouter::searchChildren(EndpointSearchData& data)
@@ -57,6 +58,11 @@ bool HttpRouter::searchChildren(EndpointSearchData& data)
 		if(buffer.empty())
 			continue;
 
+		getFormData(data);
+
+		if(buffer.empty())
+			continue;
+
 		if(lookInFixedContainer(data))
 			continue;
 
@@ -65,6 +71,24 @@ bool HttpRouter::searchChildren(EndpointSearchData& data)
 
 	return true;
 }
+
+void HttpRouter::getFormData(EndpointSearchData& data)
+{
+	auto& buffer = data.buffer;
+
+	const auto pos = buffer.find('?');
+    
+    if(pos == std::string::npos)
+    	return;
+    
+    auto&& formText = buffer.substr(pos+1);
+    auto&& newForm = HttpUtil::extractFormData(formText);
+
+    data.form.merge(newForm);
+
+    buffer = buffer.substr(0, pos);
+}
+
 
 bool HttpRouter::lookInFixedContainer(EndpointSearchData& data)
 {

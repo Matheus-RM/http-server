@@ -32,7 +32,7 @@ HttpRequest::~HttpRequest()
 }
 
 
-const std::string& HttpRequest::getArgument(unsigned index) const
+std::string HttpRequest::getArgument(unsigned index) const
 {
 	if(index >= mArgs.size())
 		return std::string("~ invalid access on argument request ~");
@@ -40,7 +40,7 @@ const std::string& HttpRequest::getArgument(unsigned index) const
 	return mArgs.at(index);
 }
 
-const std::string& HttpRequest::getFormAttribute(std::string_view key) const
+std::string HttpRequest::getFormAttribute(std::string_view key) const
 {
 	auto it = mFormData.find(std::string(key.begin(), key.end()));
 

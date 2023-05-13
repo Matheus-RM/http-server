@@ -2,8 +2,12 @@ body {
 	background-color: darkblue;
 }
 
-h1, p {
+h1, p, label, legend {
 	color: white;
+}
+
+fieldset {
+	border-color: white;
 }
 
 p {
